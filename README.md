@@ -1,2 +1,51 @@
-# Rollout.io---Remote-Config
-Rollout.io – Remote Config is a centralized feature flag and configuration management system that allows applications to change behavior dynamically at runtime without redeployment. It supports controlled feature rollouts, instant rollback, and centralized configuration management, improving reliability and operational safety in production systems.
+# Rollout.io – Remote Config
+
+## Overview
+
+Rollout.io – Remote Config is a centralized feature flag and configuration management system that enables applications to control features dynamically at runtime without redeploying code. It supports safe rollouts, instant rollback, and centralized configuration control, improving reliability in production environments.
+
+---
+
+## Key Features
+
+* Centralized feature flag management
+* Runtime enable and disable of features
+* Controlled and gradual feature rollouts
+* Instant rollback during failures
+* Project-specific configuration handling
+* Easy application integration
+
+---
+
+## How It Works
+
+Administrators manage feature flags and configurations through an admin dashboard. Applications fetch feature status at runtime and adjust their behavior dynamically, allowing changes to take effect immediately without redeployment.
+
+---
+
+## Technology Stack
+
+* **Frontend:** React
+* **Backend:** Java, Spring Boot, REST APIs
+* **Database:** MySQL
+
+---
+
+## Use Cases
+
+* Gradual rollout of new features
+* Emergency feature disable (kill switch)
+* A/B testing and experimentation
+* SaaS application feature control
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+## Author
+
+Final Year Project – Java Backend Development
