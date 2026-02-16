@@ -1,0 +1,8 @@
+scrape_configs:
+  - job_name: 'registry-server'
+    metrics_path: '/actuator/prometheus'
+    basic_auth:
+      username: prometheus
+      password: prom123
+    static_configs:
+      - targets: ['host.docker.internal:4999']

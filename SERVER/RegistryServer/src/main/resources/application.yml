@@ -1,0 +1,22 @@
+server:
+  port: 4999
+
+eureka:
+  instance:
+    health-check-url-path: /actuator/health
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://localhost:4999/eureka/
+  server:
+    enable-self-preservation: true
+    eviction-interval-timer-in-ms: 60000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+
