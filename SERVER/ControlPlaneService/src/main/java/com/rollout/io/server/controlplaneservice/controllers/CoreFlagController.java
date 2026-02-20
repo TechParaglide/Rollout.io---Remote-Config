@@ -36,6 +36,24 @@ public class CoreFlagController {
         return ApiResponseBuilder.out(HttpStatus.OK, "Core Flags fetched successfully", coreFlagService.getCoreFlags(jwt, environmentId));
     }
 
+    @GetMapping("/environments/{environmentId}/core-flags/basic")
+    @Operation(summary = "Get Basic Core Flags", description = "Retrieves all basic (non-JSON) core feature flags for a specific environment.")
+    public ResponseEntity<ApiResponse<List<Flag>>> getBasicCoreFlags(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String environmentId
+    ) {
+        return ApiResponseBuilder.out(HttpStatus.OK, "Basic Core Flags fetched successfully", coreFlagService.getBasicCoreFlags(jwt, environmentId));
+    }
+
+    @GetMapping("/environments/{environmentId}/core-flags/json")
+    @Operation(summary = "Get JSON Core Flags", description = "Retrieves all JSON core feature flags for a specific environment.")
+    public ResponseEntity<ApiResponse<List<Flag>>> getJsonCoreFlags(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String environmentId
+    ) {
+        return ApiResponseBuilder.out(HttpStatus.OK, "JSON Core Flags fetched successfully", coreFlagService.getJsonCoreFlags(jwt, environmentId));
+    }
+
     @GetMapping("/core-flags/by-sdk-key") // Public-facing endpoint for SDKs
     @Operation(summary = "Get Core Flags by SDK Key", description = "Retrieves all core feature flags for the environment associated with the SDK key. No user authentication required.")
     public ResponseEntity<ApiResponse<List<Flag>>> getCoreFlagsBySdkKey(

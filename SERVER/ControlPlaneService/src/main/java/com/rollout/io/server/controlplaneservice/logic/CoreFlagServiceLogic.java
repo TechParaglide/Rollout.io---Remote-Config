@@ -3,8 +3,9 @@ package com.rollout.io.server.controlplaneservice.logic;
 import com.rollout.io.server.controlplaneservice.entity.Environment;
 import com.rollout.io.server.controlplaneservice.entity.Flag;
 import com.rollout.io.server.controlplaneservice.entity.FlagCategory;
+import com.rollout.io.server.controlplaneservice.entity.FlagType;
 import com.rollout.io.server.controlplaneservice.exceptions.RolloutError;
-import com.rollout.io.server.controlplaneservice.repository.CoreFlagRepository;
+import com.rollout.io.server.controlplaneservice.repository.FlagRepository;
 import com.rollout.io.server.controlplaneservice.service.EnvironmentService;
 import com.rollout.io.server.controlplaneservice.service.CoreFlagService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class CoreFlagServiceLogic implements CoreFlagService {
 
-    private final CoreFlagRepository coreFlagRepository;
+    private final FlagRepository flagRepository;
     private final EnvironmentService environmentService;
     private final FlagHelperLogic flagHelperLogic;
 
@@ -31,11 +32,11 @@ public class CoreFlagServiceLogic implements CoreFlagService {
         // Validate access to environment
         environmentService.getEnvironmentById(jwt, environmentId);
 
-        if (coreFlagRepository.findByEnvironmentIdAndKey(environmentId, flag.getKey()).isPresent()) {
+        if (flagRepository.findByEnvironmentIdAndKey(environmentId, flag.getKey()).isPresent()) {
             throw new RolloutError("Flag with this key already exists in the environment", HttpStatus.CONFLICT);
         }
 
-        if (flag.getDisplayName() != null && coreFlagRepository.findByEnvironmentIdAndDisplayName(environmentId, flag.getDisplayName()).isPresent()) {
+        if (flag.getDisplayName() != null && flagRepository.findByEnvironmentIdAndDisplayName(environmentId, flag.getDisplayName()).isPresent()) {
             throw new RolloutError("Flag with this name already exists in the environment", HttpStatus.CONFLICT);
         }
 
@@ -53,18 +54,30 @@ public class CoreFlagServiceLogic implements CoreFlagService {
             flag.setEnabled(false);
         }
 
-        return coreFlagRepository.save(flag);
+        return flagRepository.save(flag);
     }
 
     @Override
     public List<Flag> getCoreFlags(Jwt jwt, String environmentId) {
         environmentService.getEnvironmentById(jwt, environmentId);
-        return coreFlagRepository.findAllByEnvironmentIdAndCategory(environmentId, FlagCategory.CORE);
+        return flagRepository.findAllByEnvironmentIdAndCategory(environmentId, FlagCategory.CORE);
+    }
+
+    @Override
+    public List<Flag> getBasicCoreFlags(Jwt jwt, String environmentId) {
+        environmentService.getEnvironmentById(jwt, environmentId);
+        return flagRepository.findAllByEnvironmentIdAndCategoryAndTypeNot(environmentId, FlagCategory.CORE, FlagType.JSON);
+    }
+
+    @Override
+    public List<Flag> getJsonCoreFlags(Jwt jwt, String environmentId) {
+        environmentService.getEnvironmentById(jwt, environmentId);
+        return flagRepository.findAllByEnvironmentIdAndCategoryAndType(environmentId, FlagCategory.CORE, FlagType.JSON);
     }
 
     @Override
     public Flag getCoreFlag(Jwt jwt, String flagId) {
-        Flag flag = coreFlagRepository.findById(flagId)
+        Flag flag = flagRepository.findById(flagId)
                 .orElseThrow(() -> new RolloutError("Flag not found", HttpStatus.NOT_FOUND));
         
         // Validate access
@@ -78,7 +91,7 @@ public class CoreFlagServiceLogic implements CoreFlagService {
         // Find environment using the SDK key (public access endpoint concept)
         Environment environment = environmentService.getEnvironmentBySdkKey(sdkKey);
 
-        return coreFlagRepository.findAllByEnvironmentIdAndCategory(environment.getId(), FlagCategory.CORE);
+        return flagRepository.findAllByEnvironmentIdAndCategory(environment.getId(), FlagCategory.CORE);
     }
 
     @Override
@@ -91,7 +104,7 @@ public class CoreFlagServiceLogic implements CoreFlagService {
         }
 
         if (updateRequest.getDisplayName() != null && !updateRequest.getDisplayName().equals(existingFlag.getDisplayName())) {
-            if (coreFlagRepository.findByEnvironmentIdAndDisplayName(existingFlag.getEnvironmentId(), updateRequest.getDisplayName()).isPresent()) {
+            if (flagRepository.findByEnvironmentIdAndDisplayName(existingFlag.getEnvironmentId(), updateRequest.getDisplayName()).isPresent()) {
                 throw new RolloutError("Flag with this name already exists", HttpStatus.CONFLICT);
             }
             existingFlag.setDisplayName(updateRequest.getDisplayName());
@@ -128,13 +141,13 @@ public class CoreFlagServiceLogic implements CoreFlagService {
         }
 
         existingFlag.setUpdatedAt(Instant.now());
-        return coreFlagRepository.save(existingFlag);
+        return flagRepository.save(existingFlag);
     }
 
     @Override
     public void deleteCoreFlag(Jwt jwt, String flagId) {
         Flag flag = getCoreFlag(jwt, flagId); // Handles access check
-        coreFlagRepository.delete(flag);
+        flagRepository.delete(flag);
     }
 
     @Override
@@ -143,9 +156,7 @@ public class CoreFlagServiceLogic implements CoreFlagService {
         flag.setEnabled(!Boolean.TRUE.equals(flag.getEnabled()));
         flag.setVersion(flag.getVersion() + 1); // Increment version when toggled
         flag.setUpdatedAt(Instant.now());
-        return coreFlagRepository.save(flag);
+        return flagRepository.save(flag);
     }
 
-    // Delegated to JwtHelper
-    
 }

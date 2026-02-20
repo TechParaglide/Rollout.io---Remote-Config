@@ -13,6 +13,10 @@ public interface CoreFlagService {
 
     List<Flag> getCoreFlags(Jwt jwt, String environmentId);
 
+    List<Flag> getBasicCoreFlags(Jwt jwt, String environmentId);
+
+    List<Flag> getJsonCoreFlags(Jwt jwt, String environmentId);
+
     Flag getCoreFlag(Jwt jwt, String flagId);
 
     List<Flag> getCoreFlagsBySdkKey(String sdkKey);
